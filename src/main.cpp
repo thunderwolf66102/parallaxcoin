@@ -32,7 +32,7 @@ CTxMemPool mempool;
 unsigned int nTransactionsUpdated = 0;
 
 map<uint256, CBlockIndex*> mapBlockIndex;
-uint256 hashGenesisBlock("0x89a47c0df0ab17773b26d2f03a480eb2a11bc022e83e611ca14b88428e0f4252");
+uint256 hashGenesisBlock("0xacbbcedf20e3c9d7bf8d27816519aea1925f42ec2c433093a3b6d0778ac740a6");
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // ParallaxCoin: starting difficulty is 1 / 2^12
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -1107,6 +1107,10 @@ unsigned char GetNfactor(int64 nTimestamp) {
 int64 static GetBlockValue(int nHeight, int64 nFees)
 {
     int64 nSubsidy = 150 * COIN;
+
+    if (nHeight == 1) {
+        nSubsidy = 52560 * COIN;
+    }
 
     // Subsidy is cut in half every 350400 blocks, which will occur approximately every year.
     nSubsidy >>= (nHeight / 350400); // ParallaxCoin: 350400 blocks in ~1 year
@@ -2941,19 +2945,11 @@ bool InitBlockIndex() {
 
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)
     if (!fReindex) {
-        // ParallaxCoin Genesis Block:
-        // CBlock(hash=89a47c0df0ab17773b26d2f03a480eb2a11bc022e83e611ca14b88428e0f4252,
-        //      PoW=000008c4ab357d9eae69b252b0b3bd90e3d414372442774806d9a6e80a9778b6,
-        //      ver=1, hashPrevBlock=0000000000000000000000000000000000000000000000000000000000000000,
-        //      hashMerkleRoot=f7585b5ce116156d39dabe4a7cd9fb15b0f3b39200bcdf3bd98ee06b1c84cad0,
-        //      nTime=1385836560, nBits=1e0ffff0, nNonce=958772, vtx=1)
-        //  CTransaction(hash=f7585b5ce116156d39dabe4a7cd9fb15b0f3b39200bcdf3bd98ee06b1c84cad0,
-        //          ver=1, vin.size=1, vout.size=1, nLockTime=0)
-        //      CTxIn(COutPoint(0000000000000000000000000000000000000000000000000000000000000000,
-        //                      4294967295),
-        //              coinbase 04ffff001d01044c504c652046696761726f20323031332f31312f33302031393a33362043455420437576696c6c6965722072656c61746976697365206c61206d6f62696c69736174696f6e2064657320726f757469657273)
-        //      CTxOut(nValue=50.00000000, scriptPubKey=040184710fa689ad5023690c80f3a4)
-
+        //CBlock(hash=acbbcedf20e3c9d7bf8d27816519aea1925f42ec2c433093a3b6d0778ac740a6, input=0100000000000000000000000000000000000000000000000000000000000000000000008f1c4caf85bee6b6ac7e4eae50c304069a20a9ddcce311bcb043a001d91c750cf4c74953f0ff0f1eeb6c2600, PoW=0000009067e5420f02b4830ecb460041cf067775fbc48f65ac5f08ae99a9e50f, ver=1, hashPrevBlock=0000000000000000000000000000000000000000000000000000000000000000, hashMerkleRoot=0c751cd901a043b0bc11e3ccdda9209a0604c350ae4e7eacb6e6be85af4c1c8f, nTime=1397344244, nBits=1e0ffff0, nNonce=2518251, vtx=1)
+        //CTransaction(hash=0c751cd901a043b0bc11e3ccdda9209a0604c350ae4e7eacb6e6be85af4c1c8f, ver=1, vin.size=1, vout.size=1, nLockTime=0)
+        //CTxIn(COutPoint(0000000000000000000000000000000000000000000000000000000000000000, 4294967295), coinbase 04ffff001d010432417072696c20392c20323031342054484520494e5445524e4554e28099532054454c4c54414c45204845415254424c454544)
+        //CTxOut(nValue=150.00000000, scriptPubKey=040184710fa689ad5023690c80f3a4)
+        //vMerkleTree: 0c751cd901a043b0bc11e3ccdda9209a0604c350ae4e7eacb6e6be85af4c1c8f
         // Genesis block
         const char* pszTimestamp = "April 9, 2014 THE INTERNET’S TELLTALE HEARTBLEED";
         CTransaction txNew;
@@ -2969,7 +2965,7 @@ bool InitBlockIndex() {
         block.nVersion = 1;
         block.nTime    = 1397344244;
         block.nBits    = 0x1e0ffff0;
-        block.nNonce   = 958772;
+        block.nNonce   = 2518251;
 
         if (fTestNet)
         {
@@ -2982,7 +2978,42 @@ bool InitBlockIndex() {
         printf("%s\n", hash.ToString().c_str());
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
-        assert(block.hashMerkleRoot == uint256("0xf7585b5ce116156d39dabe4a7cd9fb15b0f3b39200bcdf3bd98ee06b1c84cad0"));
+        assert(block.hashMerkleRoot == uint256("0x0c751cd901a043b0bc11e3ccdda9209a0604c350ae4e7eacb6e6be85af4c1c8f"));
+
+            // If genesis block hash does not match, then generate new genesis hash.
+            if (true && block.GetHash() != hashGenesisBlock)
+            {
+                printf("Searching for genesis block...\n");
+                // This will figure out a valid hash and Nonce if you're
+                // creating a different genesis block:
+                uint256 hashTarget = CBigNum().SetCompact(block.nBits).getuint256();
+                uint256 thash;
+                unsigned long int  scrypt_scratpad_size_current_block = ((1 << (GetNfactor(block.nTime) + 1)) * 128 ) + 63;
+            
+                char scratchpad[scrypt_scratpad_size_current_block];
+   
+                
+                loop
+                {
+                    scrypt_N_1_1_256_sp_generic(BEGIN(block.nVersion), BEGIN(thash), scratchpad, GetNfactor(block.nTime));
+    
+                    if (thash <= hashTarget)
+                        break;
+                    if ((block.nNonce & 0xFFF) == 0)
+                    {
+                        printf("nonce %08X: hash = %s (target = %s)\n", block.nNonce, thash.ToString().c_str(), hashTarget.ToString().c_str());
+                    }
+                    ++block.nNonce;
+                    if (block.nNonce == 0)
+                    {
+                        printf("NONCE WRAPPED, incrementing time\n");
+                        ++block.nTime;
+                    }
+                }
+                printf("block.nTime = %u \n", block.nTime);
+                printf("block.nNonce = %u \n", block.nNonce);
+                printf("block.GetHash = %s\n", block.GetHash().ToString().c_str());
+            }
         block.print();
         assert(hash == hashGenesisBlock);
 
