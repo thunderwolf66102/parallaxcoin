@@ -10,6 +10,7 @@ src/test_parallaxcoin
 *.o
 *.patch
 .parallaxcoin
+*.directory
 
 # Compilation and Qt preprocessor part
 *.qm
