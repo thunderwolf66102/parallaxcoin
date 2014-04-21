@@ -7,7 +7,7 @@ SetCompressor /SOLID lzma
 !define REGKEY "SOFTWARE\$(^Name)"
 !define VERSION 0.8.6.2
 !define COMPANY "ParallaxCoin project"
-!define URL http://www.litecoin.org/
+!define URL http://www.parallaxcoin.org/
 
 # MUI Symbol Definitions
 !define MUI_ICON "../share/pixmaps/parallaxcoin.ico"
@@ -131,7 +131,7 @@ Section -un.post UNSEC0001
     DeleteRegKey HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Uninstall ParallaxCoin.lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\ParallaxCoin.lnk"
-    Delete /REBOOTOK "$SMSTARTUP\Litecoin.lnk"
+    Delete /REBOOTOK "$SMSTARTUP\Parallaxcoin.lnk"
     Delete /REBOOTOK $INSTDIR\uninstall.exe
     Delete /REBOOTOK $INSTDIR\debug.log
     Delete /REBOOTOK $INSTDIR\db.log
