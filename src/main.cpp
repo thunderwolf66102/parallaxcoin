@@ -2126,7 +2126,7 @@ int GetAuxPowStartBlock()
 
 int GetOurChainID()
 {
-    return 0x0001;
+    return 0x0002;
 }
 
 bool CBlockHeader::CheckProofOfWork(int nHeight) const
